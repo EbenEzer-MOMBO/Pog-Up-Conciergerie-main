@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suppression de compte - Pog'Up Conciergerie</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #ffffff;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e5e5;
+        max-width: 600px;
+        width: 100%;
+        padding: 40px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .header h1 {
+        color: #e30613;
+        font-size: 28px;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+
+      .header p {
+        color: #777;
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      .warning-box {
+        background: #fffbf0;
+        border-left: 3px solid #ffffff;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+      }
+
+      .warning-box p {
+        color: #000000;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border-color 0.3s;
+        background: #ffffff;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #e30613;
+        box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1);
+      }
+
+      .form-group input:disabled {
+        background-color: #fafafa;
+        cursor: not-allowed;
+        border-color: #e8e8e8;
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+
+      .required {
+        color: #e30613;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+      }
+
+      .btn {
+        flex: 1;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: inherit;
+      }
+
+      .btn-primary {
+        background: #e30613;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #c1050f;
+        box-shadow: 0 2px 8px rgba(227, 6, 19, 0.2);
+      }
+
+      .btn-secondary {
+        background: #f8f8f8;
+        color: #333;
+        border: 1px solid #e0e0e0;
+      }
+
+      .btn-secondary:hover {
+        background: #f0f0f0;
+        border-color: #d0d0d0;
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .success-message {
+        background: #f0f9f4;
+        border-left: 3px solid #28a745;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .success-message.show {
+        display: block;
+      }
+
+      .success-message p {
+        color: #155724;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .error-message {
+        background: #fef2f2;
+        border-left: 3px solid #dc3545;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .error-message.show {
+        display: block;
+      }
+
+      .error-message p {
+        color: #721c24;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .loading.show {
+        display: block;
+      }
+
+      .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #e30613;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 25px;
+        }
+
+        .header h1 {
+          font-size: 24px;
+        }
+
+        .button-group {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Suppression de compte</h1>
+        <p>
+          Nous sommes désolés de vous voir partir. Veuillez remplir le
+          formulaire ci-dessous pour initier la procédure de suppression.
+        </p>
+      </div>
+
+      <div class="warning-box">
+        <p>
+          <strong>Attention :</strong> Cette action est irréversible. Toutes
+          vos données seront définitivement supprimées après validation de votre
+          demande.
+        </p>
+      </div>
+
+      <div class="success-message" id="successMessage">
+        <p>
+          <strong>✓ Demande envoyée avec succès !</strong><br />
+          Votre demande de suppression de compte a été transmise à notre équipe.
+          Vous recevrez une confirmation par email dans les prochaines heures.
+        </p>
+      </div>
+
+      <div class="error-message" id="errorMessage">
+        <p id="errorText"></p>
+      </div>
+
+      <form id="deleteAccountForm">
+        <div class="form-group">
+          <label for="email">Email <span class="required">*</span></label>
+          <input type="email" id="email" name="email" required disabled />
+        </div>
+
+        <div class="form-group">
+          <label for="prenom">Prénom</label>
+          <input type="text" id="prenom" name="prenom" disabled />
+        </div>
+
+        <div class="form-group">
+          <label for="nom">Nom</label>
+          <input type="text" id="nom" name="nom" disabled />
+        </div>
+
+        <div class="form-group">
+          <label for="raison"
+            >Raison de la suppression <span class="required">*</span></label
+          >
+          <textarea
+            id="raison"
+            name="raison"
+            placeholder="Veuillez nous expliquer la raison de votre demande de suppression de compte..."
+            required
+          ></textarea>
+        </div>
+
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p style="margin-top: 10px; color: #666">Envoi en cours...</p>
+        </div>
+
+        <div class="button-group">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="window.close()"
+          >
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" id="submitBtn">
+            Envoyer la demande
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      // Récupérer les paramètres de l'URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const email = urlParams.get("email") || "";
+      const prenom = urlParams.get("prenom") || "";
+      const nom = urlParams.get("nom") || "";
+      const userId = urlParams.get("userId") || "";
+
+      // Préremplir le formulaire
+      if (email) {
+        document.getElementById("email").value = decodeURIComponent(email);
+      }
+      if (prenom) {
+        document.getElementById("prenom").value = decodeURIComponent(prenom);
+      }
+      if (nom) {
+        document.getElementById("nom").value = decodeURIComponent(nom);
+      }
+
+      // Gestion de la soumission du formulaire
+      document
+        .getElementById("deleteAccountForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const submitBtn = document.getElementById("submitBtn");
+          const loading = document.getElementById("loading");
+          const successMessage = document.getElementById("successMessage");
+          const errorMessage = document.getElementById("errorMessage");
+          const errorText = document.getElementById("errorText");
+
+          // Masquer les messages précédents
+          successMessage.classList.remove("show");
+          errorMessage.classList.remove("show");
+
+          // Désactiver le bouton et afficher le loading
+          submitBtn.disabled = true;
+          loading.classList.add("show");
+
+          // Récupérer les données du formulaire
+          const formData = {
+            email: document.getElementById("email").value,
+            prenom: document.getElementById("prenom").value,
+            nom: document.getElementById("nom").value,
+            raison: document.getElementById("raison").value,
+            userId: userId,
+          };
+
+          try {
+            // Envoyer la demande à l'endpoint Supabase
+            const response = await fetch(
+              "https://sazaveplwyjpbdkjobec.supabase.co/functions/v1/send-delete-account-email",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+              }
+            );
+
+            const result = await response.json();
+
+            if (response.ok) {
+              // Succès
+              successMessage.classList.add("show");
+              document.getElementById("deleteAccountForm").style.display =
+                "none";
+
+              // Optionnel : fermer la fenêtre après 3 secondes
+              setTimeout(() => {
+                if (window.opener) {
+                  window.close();
+                }
+              }, 3000);
+            } else {
+              // Erreur
+              errorText.textContent =
+                result.error ||
+                "Une erreur est survenue lors de l'envoi de votre demande. Veuillez réessayer.";
+              errorMessage.classList.add("show");
+              submitBtn.disabled = false;
+            }
+          } catch (error) {
+            console.error("Erreur:", error);
+            errorText.textContent =
+              "Une erreur de connexion est survenue. Veuillez vérifier votre connexion internet et réessayer.";
+            errorMessage.classList.add("show");
+            submitBtn.disabled = false;
+          } finally {
+            loading.classList.remove("show");
+          }
+        });
+    </script>
+  </body>
+</html>
