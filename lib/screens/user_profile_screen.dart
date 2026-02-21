@@ -681,7 +681,74 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             onPressed: _logout,
           ),
         ),
+        SizedBox(height: 16),
+        TextButton.icon(
+          onPressed: _confirmDeleteAccount,
+          icon: Icon(Icons.delete_outline, color: Colors.red[300]),
+          label: Text(
+            'Supprimer mon compte',
+            style: TextStyle(
+              color: Colors.red[300],
+              fontFamily: 'Montserrat',
+              fontWeight: FontWeight.w500,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
       ],
+    );
+  }
+
+  void _confirmDeleteAccount() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Supprimer le compte ?'),
+        content: Text(
+          'Cette action est irréversible. Toutes vos données seront définitivement supprimées.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _deleteAccount();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text(
+              'Supprimer',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteAccount() async {
+    setState(() => _isLoading = true);
+    await AuthService.deleteAccount(
+      onSuccess: () {
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+              context, '/login', (route) => false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Compte supprimé avec succès')),
+          );
+        }
+      },
+      onError: (error) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Erreur: $error'), backgroundColor: Colors.red),
+          );
+        }
+      },
     );
   }
 }

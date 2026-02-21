@@ -71,6 +71,9 @@ dependencies:
   # Country picker pour la sélection de pays
   country_picker: ^2.0.27
 
+  # Transparence du suivi publicitaire (Apple requirement)
+  app_tracking_transparency: ^2.0.6
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

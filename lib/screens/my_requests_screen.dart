@@ -69,36 +69,45 @@ class _MyRequestsScreenState extends State<MyRequestsScreen>
           ],
         ),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: AppTheme.primaryRed))
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildDemandesList(_demandes),
-                _buildDemandesList(
-                  _demandes.where((d) => d['statut'] == 'en_attente').toList(),
+      body: SupabaseConfig.currentUser == null
+          ? _buildGuestView()
+          : _isLoading
+              ? Center(
+                  child: CircularProgressIndicator(color: AppTheme.primaryRed))
+              : TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildDemandesList(_demandes),
+                    _buildDemandesList(
+                      _demandes
+                          .where((d) => d['statut'] == 'en_attente')
+                          .toList(),
+                    ),
+                    _buildDemandesList(
+                      _demandes
+                          .where((d) => d['statut'] == 'en_cours')
+                          .toList(),
+                    ),
+                    _buildDemandesList(
+                      _demandes.where((d) => d['statut'] == 'termine').toList(),
+                    ),
+                  ],
                 ),
-                _buildDemandesList(
-                  _demandes.where((d) => d['statut'] == 'en_cours').toList(),
+      floatingActionButton: SupabaseConfig.currentUser == null
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => Navigator.pushNamed(context, '/demand'),
+              backgroundColor: AppTheme.primaryRed,
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: const Text(
+                'Faire une demande',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Montserrat',
                 ),
-                _buildDemandesList(
-                  _demandes.where((d) => d['statut'] == 'termine').toList(),
-                ),
-              ],
+              ),
             ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.pushNamed(context, '/demand'),
-        backgroundColor: AppTheme.primaryRed,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'Faire une demande',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Montserrat',
-          ),
-        ),
-      ),
     );
   }
 
@@ -484,6 +493,54 @@ class _MyRequestsScreenState extends State<MyRequestsScreen>
             child: Text(
               'Oui, supprimer',
               style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGuestView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.lock_outline, size: 80, color: Colors.grey[400]),
+          SizedBox(height: 24),
+          Text(
+            'Connexion requise',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Montserrat',
+            ),
+          ),
+          SizedBox(height: 12),
+          Text(
+            'Vous devez être connecté pour voir vos demandes.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey[600], fontSize: 16),
+          ),
+          SizedBox(height: 32),
+          ElevatedButton(
+            onPressed: () => Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/login',
+              (route) => false,
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryRed,
+              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              'Se connecter',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
             ),
           ),
         ],

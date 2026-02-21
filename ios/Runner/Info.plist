@@ -62,5 +62,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Cette application utilise vos données pour vous proposer des services personnalisés et améliorer votre expérience utilisateur.</string>
 </dict>
 </plist>

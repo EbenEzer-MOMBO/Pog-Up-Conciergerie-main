@@ -35,8 +35,12 @@ class AppleAuthService {
         nonce: hashedNonce,
       );
 
+      debugPrint(
+          'Credential Apple obtenu: email=${credential.email}, name=${credential.givenName}');
+
       final idToken = credential.identityToken;
       if (idToken == null) {
+        debugPrint('ERREUR: identityToken est null');
         throw Exception('Token ID Apple manquant');
       }
 
@@ -50,10 +54,12 @@ class AppleAuthService {
       );
 
       if (response.user == null) {
+        debugPrint('ERREUR: response.user est null après signInWithIdToken');
         throw Exception('Échec de l\'authentification Supabase');
       }
 
-      debugPrint('Authentification Supabase réussie: ${response.user!.email}');
+      debugPrint(
+          'Authentification Supabase réussie: ${response.user!.id} - ${response.user!.email}');
 
       final userProfile = await _createOrUpdateUserProfile(
         response.user!,
@@ -62,7 +68,11 @@ class AppleAuthService {
 
       return userProfile;
     } catch (e) {
-      debugPrint('Erreur lors de la connexion Apple: $e');
+      debugPrint('ERREUR CRITIQUE lors de la connexion Apple: $e');
+      if (e is SignInWithAppleAuthorizationException) {
+        debugPrint('Code d\'erreur Apple: ${e.code}');
+        debugPrint('Message d\'erreur Apple: ${e.message}');
+      }
       rethrow;
     }
   }

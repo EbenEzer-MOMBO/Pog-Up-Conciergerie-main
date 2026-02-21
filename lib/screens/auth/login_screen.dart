@@ -73,6 +73,8 @@ class _LoginScreenState extends State<LoginScreen>
                   _buildGoogleSignInButton(),
                   const SizedBox(height: 12),
                   _buildAppleSignInButton(),
+                  const SizedBox(height: 12),
+                  _buildGuestSignInButton(),
                   const SizedBox(height: 24),
                   _buildConditionsCheckbox(),
                 ],
@@ -462,5 +464,27 @@ class _LoginScreenState extends State<LoginScreen>
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Widget _buildGuestSignInButton() {
+    return TextButton(
+      onPressed: () => Navigator.pushReplacement(
+        context,
+        PageTransition(
+          type: PageTransitionType.fade,
+          child: const HomeScreen(),
+        ),
+      ),
+      child: Text(
+        'Continuer en tant qu\'invité',
+        style: TextStyle(
+          color: AppTheme.primaryRed,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Montserrat',
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    );
   }
 }

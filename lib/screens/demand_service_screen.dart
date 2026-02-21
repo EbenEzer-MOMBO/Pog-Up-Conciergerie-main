@@ -7,6 +7,7 @@ import 'services/hebergement_detail_screen.dart';
 import 'services/livraison_detail_screen.dart';
 import 'services/transport_detail_screen.dart';
 import '../config/app_theme.dart';
+import '../utils/auth_guard.dart';
 
 class DemandServiceScreen extends StatefulWidget {
   const DemandServiceScreen({super.key});
@@ -39,6 +40,23 @@ class _DemandServiceScreenState extends State<DemandServiceScreen> {
     'livraison': ['Alimentaire', 'Fragile', 'Paquets', 'Documents', 'Tous'],
     'autres': ['Ménage', 'Pressing', 'Aide personnelle', 'Autre'],
   };
+
+  @override
+  void initState() {
+    super.initState();
+    // Vérifier l'authentification dès l'ouverture de l'écran
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (SupabaseConfig.currentUser == null) {
+        // Fermer cet écran et afficher le prompt de connexion
+        Navigator.pop(context);
+        AuthGuard.requireAuth(
+          context,
+          featureName: 'Demander un service',
+        );
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -901,7 +919,14 @@ class _DemandServiceScreenState extends State<DemandServiceScreen> {
     try {
       final userId = SupabaseConfig.currentUserId;
       if (userId == null) {
-        throw Exception('Utilisateur non connecté');
+        // Ne devrait pas arriver grâce à la garde dans initState,
+        // mais on protège le cas limite par sécurité
+        setState(() => _isLoading = false);
+        if (mounted) {
+          Navigator.pop(context);
+          AuthGuard.requireAuth(context, featureName: 'Demander un service');
+        }
+        return;
       }
 
       if (_selectedServiceLabel != null && _selectedServiceLabel!.isNotEmpty) {

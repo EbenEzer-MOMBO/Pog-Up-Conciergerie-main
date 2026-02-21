@@ -11,6 +11,7 @@ import 'services/transport_detail_screen.dart';
 import 'services/hebergement_detail_screen.dart';
 import 'services/livraison_detail_screen.dart';
 import '../config/app_theme.dart';
+import '../utils/auth_guard.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -50,6 +51,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onItemTapped(int index) {
+    // L'onglet Profil (index 3) est réservé aux utilisateurs connectés
+    if (index == 3) {
+      AuthGuard.requireAuth(
+        context,
+        featureName: 'Profil',
+        action: () => setState(() => _selectedIndex = index),
+      );
+      return;
+    }
     setState(() {
       _selectedIndex = index;
     });
@@ -182,8 +192,10 @@ class _HomeScreenState extends State<HomeScreen> {
             fontFamily: 'Montserrat',
           ),
         ),
-        SizedBox(height: 16),
-        _buildMyRequestsCard(),
+        if (SupabaseConfig.currentUser != null) ...[
+          SizedBox(height: 16),
+          _buildMyRequestsCard(),
+        ],
       ],
     );
   }
@@ -301,15 +313,27 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _navigateToMyRequests() {
-    Navigator.pushNamed(context, '/requests');
+    AuthGuard.requireAuth(
+      context,
+      featureName: 'Mes demandes',
+      action: () => Navigator.pushNamed(context, '/requests'),
+    );
   }
 
   void _navigateToProfile() {
-    Navigator.pushNamed(context, '/profile');
+    AuthGuard.requireAuth(
+      context,
+      featureName: 'Mon profil',
+      action: () => Navigator.pushNamed(context, '/profile'),
+    );
   }
 
   void _navigateToDemandScreen() {
-    Navigator.pushNamed(context, '/demand');
+    AuthGuard.requireAuth(
+      context,
+      featureName: 'Demander un service',
+      action: () => Navigator.pushNamed(context, '/demand'),
+    );
   }
 
   void _showQuickActionsMenu() {
@@ -365,10 +389,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     subtitle: Text('Rejoignez notre réseau'),
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(
+                      AuthGuard.requireAuth(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => PartnerRequestScreen(),
+                        featureName: 'Devenir Partenaire',
+                        action: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PartnerRequestScreen(),
+                          ),
                         ),
                       );
                     },
@@ -390,10 +418,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     subtitle: Text('Publiez votre annonce'),
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(
+                      AuthGuard.requireAuth(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => AnnouncementRequestScreen(),
+                        featureName: 'Créer une Annonce',
+                        action: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AnnouncementRequestScreen(),
+                          ),
                         ),
                       );
                     },
@@ -576,6 +608,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildProfileTab() {
+    // Cette méthode n'est appelée que si l'utilisateur est authentifié
+    // (la garde dans _onItemTapped empêche les invités d'atteindre cet onglet)
     return FutureBuilder<UserModel?>(
       future: AuthService.getCurrentUserProfile(),
       builder: (context, snapshot) {
@@ -612,20 +646,22 @@ class _HomeScreenState extends State<HomeScreen> {
         } else {
           // Fallback si pas de profil : utiliser les métadonnées Supabase
           final supabaseUser = SupabaseConfig.currentUser;
-          final Map<String, dynamic> metadata =
-              Map<String, dynamic>.from(supabaseUser?.userMetadata ?? {});
-          final rawName = metadata['full_name'] ??
-              metadata['name'] ??
-              metadata['display_name'];
-          email = supabaseUser?.email ?? 'Compte utilisateur';
-          displayName = rawName is String && rawName.trim().isNotEmpty
-              ? rawName.trim()
-              : email;
-          final initialsSource =
-              displayName.trim().isNotEmpty ? displayName : email;
-          initials = initialsSource.trim().isNotEmpty
-              ? initialsSource.trim()[0].toUpperCase()
-              : 'U';
+          if (supabaseUser != null) {
+            final Map<String, dynamic> metadata =
+                Map<String, dynamic>.from(supabaseUser.userMetadata ?? {});
+            final rawName = metadata['full_name'] ??
+                metadata['name'] ??
+                metadata['display_name'];
+            email = supabaseUser.email ?? 'Compte utilisateur';
+            displayName = rawName is String && rawName.trim().isNotEmpty
+                ? rawName.trim()
+                : email;
+            final initialsSource =
+                displayName.trim().isNotEmpty ? displayName : email;
+            initials = initialsSource.trim().isNotEmpty
+                ? initialsSource.trim()[0].toUpperCase()
+                : 'U';
+          }
         }
 
         return Container(

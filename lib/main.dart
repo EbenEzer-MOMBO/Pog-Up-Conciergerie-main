@@ -15,6 +15,7 @@ import 'screens/my_requests_screen.dart';
 import 'screens/settings/privacy_settings_screen.dart';
 import 'screens/settings/notification_settings_screen.dart';
 import 'services/fcm_service.dart';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 
 // Handler pour les messages en background (doit être top-level)
 @pragma('vm:entry-point')
@@ -44,6 +45,16 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  /// Routes accessibles sans authentification
+  static const _publicRoutes = {
+    '/',
+    '/get-started',
+    '/splash',
+    '/login',
+    '/profile-completion',
+    '/home',
+  };
+
   @override
   Widget build(BuildContext c) => MaterialApp(
         title: 'My Pog\'Up',
@@ -64,11 +75,53 @@ class MyApp extends StatelessWidget {
             );
           },
           '/home': (_) => HomeScreen(),
-          '/demand': (_) => DemandServiceScreen(),
-          '/profile': (_) => UserProfileScreen(),
-          '/requests': (_) => MyRequestsScreen(),
-          '/privacy-settings': (_) => PrivacySettingsScreen(),
-          '/notification-settings': (_) => NotificationSettingsScreen(),
+        },
+        onGenerateRoute: (settings) {
+          // Vérification d'authentification pour les routes protégées
+          if (!_publicRoutes.contains(settings.name)) {
+            final isLoggedIn = SupabaseConfig.currentUser != null;
+            if (!isLoggedIn) {
+              // Rediriger vers la page de connexion
+              return MaterialPageRoute(
+                settings: settings,
+                builder: (_) => LoginScreen(),
+              );
+            }
+          }
+
+          // Construction des routes protégées
+          switch (settings.name) {
+            case '/demand':
+              return MaterialPageRoute(
+                settings: settings,
+                builder: (_) => DemandServiceScreen(),
+              );
+            case '/profile':
+              return MaterialPageRoute(
+                settings: settings,
+                builder: (_) => UserProfileScreen(),
+              );
+            case '/requests':
+              return MaterialPageRoute(
+                settings: settings,
+                builder: (_) => MyRequestsScreen(),
+              );
+            case '/privacy-settings':
+              return MaterialPageRoute(
+                settings: settings,
+                builder: (_) => PrivacySettingsScreen(),
+              );
+            case '/notification-settings':
+              return MaterialPageRoute(
+                settings: settings,
+                builder: (_) => NotificationSettingsScreen(),
+              );
+            default:
+              // Route inconnue — renvoyer vers l'accueil
+              return MaterialPageRoute(
+                builder: (_) => const LaunchDecider(),
+              );
+          }
         },
       );
 }
@@ -88,6 +141,16 @@ class _LaunchDeciderState extends State<LaunchDecider> {
   }
 
   Future<void> _redirect() async {
+    // Demander l'autorisation de suivi publicitaire (Apple Requirement)
+    try {
+      final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+      if (status == TrackingStatus.notDetermined) {
+        await AppTrackingTransparency.requestTrackingAuthorization();
+      }
+    } catch (e) {
+      debugPrint('Erreur lors de la demande de suivi: $e');
+    }
+
     // Attendre que Supabase restaure la session si elle existe
     try {
       // Utiliser la méthode asynchrone qui force la restauration de session
