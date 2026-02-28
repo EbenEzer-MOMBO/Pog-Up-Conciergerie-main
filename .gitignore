@@ -111,8 +111,9 @@ coverage/
 # Sensitive configuration files
 **/android/app/google-services.json
 **/ios/Runner/GoogleService-Info.plist
-# **/lib/config/supabase_config.dart
-# supabase_config.dart
+**/lib/config/supabase_config.dart
+**/lib/firebase_options.dart
+supabase_config.dart
 
 # Keep templates
 !**/android/app/google-services.json.template
