@@ -24,8 +24,23 @@ class AppleAuthService {
         return null;
       }
 
+      // Vérifier la disponibilité de Sign in with Apple
+      try {
+        final isAvailable = await SignInWithApple.isAvailable();
+        debugPrint('Sign in with Apple disponible: $isAvailable');
+        
+        if (!isAvailable) {
+          throw Exception('Sign in with Apple n\'est pas disponible sur cet appareil. Assurez-vous d\'utiliser iOS 13+ et d\'être connecté à iCloud.');
+        }
+      } catch (e) {
+        debugPrint('Erreur lors de la vérification de disponibilité: $e');
+        throw Exception('Impossible de vérifier la disponibilité de Sign in with Apple: $e');
+      }
+
       final rawNonce = SupabaseConfig.client.auth.generateRawNonce();
       final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+
+      debugPrint('Nonce généré, demande de credentials Apple...');
 
       final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [

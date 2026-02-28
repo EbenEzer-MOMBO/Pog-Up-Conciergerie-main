@@ -32,6 +32,9 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   
+  # Force GoogleSignIn version 7.x pour compatibilité
+  pod 'GoogleSignIn', '~> 7.1'
+  
   target 'RunnerTests' do
     inherit! :search_paths
   end
